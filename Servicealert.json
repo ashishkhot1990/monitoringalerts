@@ -1,0 +1,57 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json",
+  "contentVersion": "1.0.0.0",
+ 
+  "resources": [
+    {
+      "type": "Microsoft.Insights/actionGroups",
+      "apiVersion": "2017-04-01",
+      "name": "Emailalertgroup",
+      "location": "Global",
+      "properties": {
+        "groupShortName": "Emailalert",
+        "enabled": true,
+        "smsReceivers": [
+        ],
+        "emailReceivers": [
+          {
+            "name": "emailReceiver",
+            "emailAddress": "ashish.khot@rapidcircle.com"
+          }
+        ],
+        "webhookReceivers": [
+        ]
+      }
+    },
+    {
+      "type": "Microsoft.Insights/activityLogAlerts",
+      "apiVersion": "2017-04-01",
+      "name": "Service health alert",
+      "location": "Global",
+      "dependsOn": [
+        "Emailalertgroup"
+      ],
+      "properties": {
+        "enabled": true,
+        "scopes": [
+          "[subscription().id]"
+        ],
+        "condition": {
+          "allOf": [
+            {
+              "field": "properties.currentHealthStatus",
+              "equals": "Available"
+            }
+          ]
+        },
+        "actions": {
+          "actionGroups": [
+            {
+              "actionGroupId": "[resourceId('Microsoft.Insights/actionGroups', 'Emailalertgroup')]"
+            }
+          ]
+        }
+      }
+    }
+  ]
+}
